@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Navidad Riviera Cruise</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@500;700;800;900&family=DM+Mono:wght@500&display=swap">
+<style>
+/* Layout: sticky pill tab bar; each port panel re-themes the same card system with its own local art palette */
+:root{
+  color-scheme: light;
+  --bg:#F3FBFA; --ink:#1E1240; --soft:#5C527A; --line:#1E1240;
+  --pink:#FF3D7F; --sun:#FFC21A; --teal:#00B3A6; --orange:#FF7A1A; --violet:#7B4DFF;
+  --card:#FFFFFF; --chip:#EDF6F5;
+  --display:"Lilita One","Arial Rounded MT Bold","Trebuchet MS",sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"DM Mono",ui-monospace,Menlo,monospace;
+  --p1:var(--pink); --p2:var(--sun); --p3:#FFE6EF; --pink-ink:#fff;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+a{color:inherit}
+h1,h2,h3,h4{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;letter-spacing:.2px}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* tab bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--ink)}
+.bar .wrap{display:flex;gap:8px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+.bar .wrap::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;font-family:var(--display);font-size:15px;border:2px solid transparent;border-radius:999px;padding:7px 14px;background:#2E2160;color:#fff;cursor:pointer;transition:transform .12s}
+.tab:hover{transform:translateY(-1px)}
+.tab[aria-selected="true"]{background:var(--tc,var(--sun));color:var(--ink);border-color:#fff}
+.tab:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
+
+main{padding-block:18px 60px}
+section.panel{display:flex;flex-direction:column;gap:18px}
+
+/* who am I */
+.me-strip{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:800}
+.me-strip .lbl{font-size:13px;color:var(--soft);text-transform:uppercase;letter-spacing:.8px}
+.face{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:999px;padding:4px 12px 4px 4px;background:#fff;font-weight:800;cursor:pointer;font-family:var(--body);font-size:14px;color:var(--ink)}
+.face i{width:24px;height:24px;border-radius:50%;background:var(--c);display:grid;place-items:center;color:#fff;font-style:normal;font-size:12px;font-weight:900}
+.face[aria-pressed="true"]{background:var(--c);color:#fff;box-shadow:3px 3px 0 var(--ink)}
+.face[aria-pressed="true"] i{background:#fff;color:var(--c)}
+
+/* hero */
+.hero{position:relative;border:3px solid var(--ink);border-radius:26px;overflow:hidden;background:linear-gradient(160deg,#00B3A6 0%,#14C2D1 40%,#FFC21A 100%);color:var(--ink);box-shadow:6px 6px 0 var(--ink)}
+.hero-in{position:relative;padding:22px 20px 20px;display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-size:12px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}
+.hero h1{font-size:clamp(40px,10vw,74px);line-height:.92;color:#fff;-webkit-text-stroke:2px var(--ink);text-shadow:4px 4px 0 var(--ink)}
+.hero p{margin:0;font-weight:700;max-width:46ch}
+.count{display:flex;gap:10px;flex-wrap:wrap}
+.count div{background:#fff;border:2px solid var(--ink);border-radius:14px;padding:6px 12px;text-align:center;min-width:70px}
+.count b{display:block;font-family:var(--display);font-size:28px;line-height:1;font-variant-numeric:tabular-nums}
+.count span{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px}
+.hero .sunburst{position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:repeating-conic-gradient(var(--pink) 0 10deg,transparent 10deg 20deg);opacity:.35}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.box{background:var(--card);border:3px solid var(--ink);border-radius:20px;padding:16px;box-shadow:4px 4px 0 var(--ink);min-width:0}
+.box h2{font-size:24px;margin-bottom:8px}
+.sub{color:var(--soft);font-size:13px;font-weight:700;margin:0}
+
+/* port chips (weather) */
+.ports{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.pchip{display:flex;flex-direction:column;gap:2px;text-decoration:none;border:2px solid var(--ink);border-radius:16px;padding:10px 12px;background:var(--pc);color:var(--ink);transition:transform .12s}
+.pchip:hover{transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--ink)}
+.pchip b{font-family:var(--display);font-size:18px}
+.pchip .t{font-family:var(--mono);font-size:12px}
+.pchip .w{font-weight:800;font-size:13px}
+
+/* map */
+.map svg{width:100%;height:auto;display:block}
+.map .stop{cursor:pointer}
+
+/* hot list */
+.hot{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.hot li{display:flex;align-items:center;gap:10px;border:2px solid var(--ink);border-radius:14px;padding:8px 10px;background:var(--hc,#fff);min-width:0}
+.hot .n{font-family:var(--display);font-size:20px;width:28px;text-align:center;flex:0 0 auto}
+.hot .tt{flex:1;min-width:0;font-weight:800}
+.hot .tt small{display:block;font-weight:700;color:var(--soft)}
+.dots{display:flex}
+.dots i{width:22px;height:22px;border-radius:50%;background:var(--c);border:2px solid #fff;margin-left:-6px;display:grid;place-items:center;color:#fff;font-style:normal;font-size:10px;font-weight:900}
+.dots i:first-child{margin-left:0}
+.empty{border:2px dashed var(--soft);border-radius:14px;padding:12px;color:var(--soft);font-weight:700;margin:0}
+
+/* status */
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.st{border:2px solid var(--ink);border-radius:14px;padding:10px;background:#fff;min-width:0}
+.st .nm{display:flex;align-items:center;gap:6px;font-weight:900}
+.st .nm i{width:12px;height:12px;border-radius:50%;background:var(--c)}
+.st .where{font-weight:800;font-size:15px;overflow-wrap:anywhere}
+.st .ago{font-size:12px;color:var(--soft);font-weight:700}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.qbtn,.btn{font-family:var(--body);font-weight:900;font-size:14px;border:2px solid var(--ink);border-radius:999px;padding:7px 13px;background:#fff;color:var(--ink);cursor:pointer;transition:transform .1s, box-shadow .1s}
+.qbtn:hover,.btn:hover{transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--ink)}
+.qbtn:active,.btn:active{transform:translate(1px,1px);box-shadow:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+input[type=text],select{font-family:var(--body);font-size:15px;font-weight:700;border:2px solid var(--ink);border-radius:12px;padding:8px 10px;background:#fff;color:var(--ink);min-width:0}
+.row input[type=text]{flex:1 1 160px}
+
+/* port hero */
+.phero{position:relative;border:3px solid var(--ink);border-radius:26px;overflow:hidden;box-shadow:6px 6px 0 var(--ink);color:var(--ink)}
+.phero .in{position:relative;padding:20px;display:flex;flex-direction:column;gap:8px;z-index:1}
+.phero h1{font-size:clamp(38px,9vw,64px);line-height:.95}
+.phero .times{display:flex;flex-wrap:wrap;gap:8px}
+.pill{font-family:var(--mono);font-size:13px;border:2px solid var(--ink);border-radius:999px;padding:4px 10px;background:#fff;color:var(--ink)}
+.pill.warn{background:var(--sun)}
+.phero .art{position:absolute;right:0;bottom:0;width:min(46%,280px);height:auto;opacity:.95}
+.phero p.blurb{margin:0;font-weight:700;max-width:52ch;position:relative}
+
+/* port themes */
+.th-cabo{--p1:#1546C7;--p2:#FF6B3D;--p3:#FFE1C9}
+.th-cabo .phero{background:linear-gradient(180deg,#FF9A5C 0%,#FF6B3D 38%,#C2307A 70%,#1546C7 100%);color:#fff}
+.th-cabo .phero h1{color:#fff;-webkit-text-stroke:1.5px var(--ink);text-shadow:3px 3px 0 var(--ink)}
+.th-maz{--p1:#2C3E9A;--p2:#F47CA6;--p3:#E3F6F2}
+.th-maz .phero{background:#BFEDE6}
+.th-maz .phero h1{color:#2C3E9A}
+.th-pv{--p1:#E6007E;--p2:#00A6D6;--p3:#FFF6C2}
+.th-pv .phero{background:#FFD200}
+.th-pv .phero::before{content:"";position:absolute;inset:0;background:
+  conic-gradient(from 45deg at 50% 50%,#E6007E 0 25%,#00A6D6 0 50%,#00A651 0 75%,#FF7A1A 0) 0 0/36px 36px;opacity:.28;-webkit-mask:linear-gradient(90deg,transparent 30%,#000 100%);mask:linear-gradient(90deg,transparent 30%,#000 100%)}
+.th-pv .phero h1{color:#E6007E;-webkit-text-stroke:1.5px var(--ink)}
+.th-ship{--p1:#12245B;--p2:#E8384F;--p3:#E8EEFF}
+.th-ship .phero{background:radial-gradient(circle at 20% 20%,#2C4AA8,#12245B 70%);color:#fff}
+.th-ship .phero h1{color:#FFD45A;text-shadow:3px 3px 0 #000}
+
+.papel{display:flex;position:relative;z-index:1;margin:-3px -3px 0}
+.papel span{flex:1;height:34px;clip-path:polygon(0 0,100% 0,100% 70%,85% 100%,70% 70%,50% 100%,30% 70%,15% 100%,0 70%);border-right:2px solid transparent}
+
+.tip{border:2px solid var(--ink);border-radius:16px;background:var(--p3);padding:12px 14px;font-weight:700;display:flex;gap:10px}
+.tip b{font-family:var(--display);font-weight:400;font-size:17px;color:var(--p1)}
+
+/* quests */
+.quests{display:flex;flex-wrap:wrap;gap:8px}
+.quest{display:flex;align-items:center;gap:8px;border:2px solid var(--ink);border-radius:999px;padding:6px 12px 6px 6px;background:#fff;cursor:pointer;font-family:var(--body);font-weight:800;font-size:14px;color:var(--ink)}
+.quest .ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font-size:13px;background:#fff}
+.quest.done .ck{background:var(--p2);color:#fff}
+.quest .dots i{width:18px;height:18px;font-size:9px}
+
+/* filters */
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.fchip{flex:0 0 auto;font-family:var(--body);font-weight:900;font-size:13px;border:2px solid var(--ink);border-radius:999px;padding:6px 12px;background:#fff;color:var(--ink);cursor:pointer}
+.fchip[aria-pressed="true"]{background:var(--p1);color:#fff}
+
+/* activity cards */
+.acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.act{display:flex;flex-direction:column;gap:8px;background:#fff;border:3px solid var(--ink);border-radius:20px;padding:14px;box-shadow:4px 4px 0 var(--p1);min-width:0;position:relative}
+.act.voted{background:var(--p3)}
+.act .rank{position:absolute;top:-12px;right:12px;background:var(--p2);color:#fff;border:2px solid var(--ink);border-radius:999px;font-family:var(--display);font-size:13px;padding:2px 10px}
+.act h3{font-size:20px;line-height:1.1}
+.act p{margin:0;font-size:14px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:12px;font-weight:900;border-radius:999px;padding:2px 9px;background:var(--chip);border:1.5px solid var(--ink)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12.5px;font-weight:800;color:var(--soft)}
+.meta a{color:var(--p1)}
+.act-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:4px}
+.want{font-family:var(--display);font-size:16px;border:2.5px solid var(--ink);border-radius:999px;padding:7px 14px;background:var(--p2);color:#fff;cursor:pointer;box-shadow:3px 3px 0 var(--ink);transition:transform .1s, box-shadow .1s;text-shadow:1px 1px 0 rgba(0,0,0,.25)}
+.want:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.want.on{background:var(--ink);color:#fff}
+.want:disabled{opacity:.5;cursor:not-allowed}
+.extlinks{display:flex;flex-wrap:wrap;gap:8px}
+.ext{font-weight:900;font-size:13px;text-decoration:none;border:2px solid var(--ink);border-radius:999px;padding:6px 12px;background:#fff}
+.ext:hover{background:var(--p3)}
+
+/* schedule */
+.days{display:flex;flex-direction:column;gap:14px}
+.day{display:grid;grid-template-columns:76px 1fr;gap:12px;background:#fff;border:3px solid var(--ink);border-radius:20px;padding:14px;box-shadow:4px 4px 0 var(--dc)}
+.date{border:2px solid var(--ink);border-radius:14px;background:var(--dc);text-align:center;padding:6px 4px;align-self:start;color:var(--ink)}
+.date b{display:block;font-family:var(--display);font-size:30px;line-height:1}
+.date span{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px}
+.day h3{font-size:21px}
+.day .body{min-width:0;display:flex;flex-direction:column;gap:6px}
+.day ul{margin:0;padding-left:18px;font-size:14px;font-weight:700}
+.day .plan{display:flex;gap:8px;align-items:baseline;font-size:14px;font-weight:700}
+.day .plan .tm{font-family:var(--mono);font-size:12px;color:var(--soft);flex:0 0 auto}
+.day .plan .x{border:0;background:none;color:var(--soft);cursor:pointer;font-weight:900;font-size:14px;padding:0 4px}
+.lab{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--soft)}
+.mini{display:flex;flex-wrap:wrap;gap:6px}
+.mini span{font-size:12.5px;font-weight:800;border:1.5px solid var(--ink);border-radius:999px;padding:2px 9px;background:var(--bg)}
+
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:800;border-radius:999px;padding:9px 16px;z-index:20;max-width:calc(100% - 32px)}
+.note{font-size:12.5px;color:var(--soft);font-weight:700;margin:0}
+footer{padding-block:10px 30px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:420px){.day{grid-template-columns:1fr}.date{display:flex;gap:8px;align-items:baseline;justify-content:center}.phero .art{width:42%;opacity:.6}}
+</style>
+</head>
+<body>
+
+
+<nav class="bar" aria-label="Sections"><div class="wrap" id="tabs" role="tablist"></div></nav>
+
+<main class="wrap">
+  <section class="panel" id="p-home" data-tab="home"></section>
+  <section class="panel" id="p-plan" data-tab="plan" hidden></section>
+  <section class="panel th-cabo" id="p-cabo" data-tab="cabo" hidden></section>
+  <section class="panel th-maz" id="p-maz" data-tab="maz" hidden></section>
+  <section class="panel th-pv" id="p-pv" data-tab="pv" hidden></section>
+  <section class="panel th-ship" id="p-ship" data-tab="ship" hidden></section>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ---------- data ---------- */
+const CREW=[{n:"Mauro",c:"#FF3D7F"},{n:"Syd",c:"#00A396"},{n:"Abby",c:"#FF7A1A"},{n:"Carly",c:"#7B4DFF"}];
+const COLOR=Object.fromEntries(CREW.map(x=>[x.n,x.c]));
+const TAGS={snorkel:"🐠 Snorkel",hike:"🥾 Hike",party:"🎉 Party",karaoke:"🎤 Karaoke",beach:"🏖️ Beach",eats:"🌮 Eats",sights:"📸 Sights",games:"🎮 Games",chill:"🌴 Chill"};
+const SRC={
+  hal:["Cruise excursion listing","https://www.hollandamerica.com/en/cruise-destinations/mexico-cruises/mexico-m-ports/sjd/37523"],
+  seg:["Shore excursion listing","https://www.shoreexcursionsgroup.com/tour/golden-coast-cruise-snorkel/mxcsgold"],
+  lp:["Lonely Planet","https://www.lonelyplanet.com/articles/top-things-to-do-in-cabo-san-lucas"],
+  from:["Frommer's","https://www.frommers.com/destinations/cabo-san-lucas/nightlife/overview"],
+  esc:["Eat Sleep Cruise","https://eatsleepcruise.com/top-things-to-do-in-cabo-san-lucas-on-a-cruise-in-2020/"],
+  pure:["Pure Cabo","https://www.purecabo.com/blog/things-to-do-in-cabo/best-nightlife-hotspots-cabo-san-lucas-2020/"],
+  faro:["Cruiser trip report","https://foreverkaren.com/travel/el-faro-lighthouse-hike/"],
+  cc:["Cruise Critic","https://www.cruisecritic.com/articles/reasons-to-go-ashore-in-mazatlan-mexico"],
+  clq:["Cruiser reviews","https://cruiseline.com/port/mexico/mazatlan-mexico"],
+  hive:["CruiseHive forum","https://boards.cruisehive.com/topic/1348-mazatlan-cruise-port/"],
+  mzk:["Cruiser port guide","https://foreverkaren.com/travel/mazatlan-mexico-cruise-port/"],
+  exm:["Expedia tour","https://www.expedia.com/es/things-to-do/null.a50864387.detalles-actividades"],
+  arcos:["Expedia tour","https://www.expedia.com/things-to-do/private-snorkeling-tour-to-los-arcos.a1375697.activity-details"],
+  aaa:["AAA TripCanvas","https://www.aaa.com/tripcanvas/attraction/los-arcos-national-marine-park-VA986"],
+  pvday:["Expedia tour","https://www.expedia.com.my/things-to-do/cruise-in-puerto-vallarta-with-lunch-and-open-bar.a50745984.activity-details"],
+  fod:["Fodor's","https://www.fodors.com/world/mexico-and-central-america/mexico/puerto-vallarta/experiences/news/photos/21-ultimate-things-to-do-in-puerto-vallarta"],
+  cblog:["Cruise.Blog","https://cruise.blog/2022/08/top-10-things-do-puerto-vallarta"],
+  oys:["Oyster","https://www.oyster.com/articles/things-to-do-in-puerto-vallarta-what-to-do-in-puerto-vallarta/"],
+  pvk:["Cruiser port guide","https://foreverkaren.com/travel/puerto-vallarta-mexico/"],
+  gz:["Garza Blanca guide","https://www.garzablancaresort.com/blog/?p=33050"],
+  disc:["Ship guide","https://www.travelextra.ie/?p=85712"],
+  cf:["Cruise Fever","https://cruisefever.net/princess-cruises-adding-christmas-activities-on-sailings-over-the-holidays/"],
+  nf:["Princess fleet guide","https://www.nauticalflock.com/ships/island-princess/activities"],
+  cost:["Costco Travel ship page","https://www.costcotravel.com/cruises/princess-cruises/discovery-princess"]
+};
+const M=q=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q);
+
+const PORTS={
+ cabo:{name:"Cabo San Lucas",short:"Cabo",date:"Mon Dec 21",time:"12:00 PM – 8:00 PM",pc:"#FFB48A",hi:"27°",lo:"17°",sea:"24°",
+  tz:"Baja California Sur",
+  blurb:"The very tip of the Baja Peninsula, where desert cliffs drop into two seas at once. Land's End and its granite arch, El Arco, mark the spot where the Sea of Cortez meets the open Pacific. By night the marina turns into one of Mexico's loudest party strips.",
+  tip:["Tender port","There's no dock here, so you ride a water shuttle in. Expect lines, head ashore early, and note the last tender time in the daily planner. With an 8 PM departure, you can catch a Land's End sunset before heading back."],
+  q:"Cabo San Lucas",
+  quests:[["cq1","Selfie with El Arco"],["cq2","Spot the sea lions"],["cq3","Margarita on Médano Beach"],["cq4","Find Pelican Rock"],["cq5","Watch the sun drop at Land's End"],["cq6","Shrimp tacos at the marina"]],
+  acts:[
+   {id:"cabo-chileno",t:"Chileno Bay reef snorkel cat",tags:["snorkel","party"],d:"Sail the Golden Coast past Lover's Beach, the sea lions and Land's End, then snorkel a big reef full of parrotfish and angelfish. Open bar and snacks on the ride back.",when:"≈3½ hrs",cost:"From ≈US$109",src:"hal",map:"Chileno Bay Cabo San Lucas"},
+   {id:"cabo-arch",t:"Water taxi to El Arco & Lover's Beach",tags:["sights","beach"],d:"The classic. A glass-bottom boat or water taxi from the marina loops the arch and sea lion colony, then drops you on Lover's Beach. Swim on the calm bay side only; the Pacific side has strong currents.",when:"1–3 hrs",cost:"Cheap, haggle at the marina",src:"esc",map:"Lover's Beach Cabo San Lucas"},
+   {id:"cabo-golden",t:"Golden Coast cruise + snorkel",tags:["snorkel","party"],d:"Big double-hull boat that leaves about a 5-minute walk from the tender pier. Snorkel Chileno Reef for 45–60 minutes, then cruise past Pelican Rock for photos. Bring cash for the small dock fee.",when:"Half day",cost:"+US$2 dock fee",src:"seg",map:"Cabo San Lucas tender pier"},
+   {id:"cabo-santamaria",t:"DIY Santa María Bay snorkel",tags:["snorkel","beach","chill"],d:"Grab a taxi to a horseshoe cove that cruisers rate as one of Cabo's best snorkel spots. Bring your own mask or rent at the beach, and pack reef-safe sunscreen.",when:"3–4 hrs",cost:"Taxi + rental",src:"esc",map:"Santa Maria Bay Cabo"},
+   {id:"cabo-paddle",t:"Paddle out to El Arco",tags:["hike","sights"],d:"Rent a kayak or paddleboard on Médano Beach and paddle out to the arch and Divorce Beach yourself. It's the active-person way to see Land's End.",when:"2 hrs",cost:"Rental",src:"lp",map:"Medano Beach kayak rental Cabo"},
+   {id:"cabo-medano",t:"Médano Beach bar crawl",tags:["party","beach"],d:"The main swimmable beach, lined with beach bars and loungers. Mango Deck looks straight at the arch. This is where the daytime party lives.",when:"Afternoon",cost:"Drinks",src:"lp",map:"Mango Deck Cabo San Lucas"},
+   {id:"cabo-squid",t:"El Squid Roe",tags:["party"],d:"Three floors of dancing, jello shots and table-top chaos, running near the marina since 1989. Go for sunset-to-7, then hustle to the tender.",when:"Evening",cost:"Drinks",src:"pure",map:"El Squid Roe Cabo San Lucas"},
+   {id:"cabo-wabo",t:"Cabo Wabo Cantina",tags:["party","karaoke"],d:"Sammy Hagar's legendary rock bar, open since 1990, with live bands, its own tequila and good tacos all day.",when:"1–2 hrs",cost:"Drinks + tacos",src:"from",map:"Cabo Wabo Cantina"},
+   {id:"cabo-sunset",t:"Land's End sunset drinks",tags:["chill","sights"],d:"A cliffside terrace looking at the arch as the sun goes down. Frommer's points to Sunset Da Mona Lisa and the Whale Watcher's Bar.",when:"Golden hour",cost:"$$",src:"from",map:"Sunset Mona Lisa Cabo San Lucas"}
+  ]},
+ maz:{name:"Mazatlán",short:"Mazatlán",date:"Tue Dec 22",time:"8:00 AM – 5:00 PM",pc:"#BFEDE6",hi:"26°",lo:"17°",sea:"24°",
+  tz:"Sinaloa",
+  blurb:"The \"Pearl of the Pacific\" and Mexico's biggest Pacific port. German immigrants poured in during the 1800s and turned it into a trading hub, which is why the oompah-brass banda sound and Pacífico beer both come from here. Today it's pastel colonial streets, cliff divers, and one of the longest seaside boardwalks in the Americas.",
+  tip:["Working port","You dock at the industrial pier and a free tram takes you to the terminal. From there, follow the painted blue line about 20 minutes to Old Mazatlán, or grab a pulmonía. Bring cash and agree on the fare before you ride."],
+  q:"Mazatlan",
+  quests:[["mq1","Ride a pulmonía"],["mq2","Stand on El Faro's glass floor"],["mq3","Catch a cliff dive"],["mq4","Pacífico in its hometown"],["mq5","Follow the blue line"],["mq6","Hear a banda play"]],
+  acts:[
+   {id:"maz-faro",t:"El Faro lighthouse hike",tags:["hike","sights"],d:"Stairmaster-style climb up Cerro del Crestón to one of the world's highest natural lighthouses, working since 1879. There's a glass-floor lookout at the top. Cruisers say go first thing since there's almost no shade.",when:"≈1 hr up & down",cost:"≈US$8 pulmonía to trailhead",src:"faro",map:"El Faro Mazatlan trailhead"},
+   {id:"maz-pulmonia",t:"Pulmonía joyride tour",tags:["sights","party"],d:"Mazatlán's own open-air golf-cart taxi. Hire one for a couple of hours and have the driver run the Malecón, the cathedral, hilltop viewpoints and a lunch stop. Cruisers rave about it.",when:"2–3 hrs",cost:"≈US$20+ to the Malecón, negotiate",src:"clq",map:"Malecon Mazatlan"},
+   {id:"maz-stone",t:"Stone Island beach day",tags:["beach","party","chill"],d:"A short water taxi from Playa Sur lands you on Isla de la Piedra, with rustic palapa bars, horseback rides and water toys. Cheap and easy, and lots of cruisers call it their favourite day.",when:"Half day",cost:"Water taxi a few dollars",src:"clq",map:"Isla de la Piedra Mazatlan"},
+   {id:"maz-divers",t:"Cliff divers at El Clavadista",tags:["sights"],d:"Local divers leap from a rocky platform over 45 ft into the surf, right on the Malecón. Tip the diver.",when:"30 min",cost:"Tip",src:"exm",map:"El Clavadista Mazatlan"},
+   {id:"maz-old",t:"Old Mazatlán & Plaza Machado",tags:["sights","eats"],d:"Walk the blue line into the restored 19th-century centre for colourful streets, the cathedral and café tables around Plaza Machado.",when:"2 hrs",cost:"Free",src:"mzk",map:"Plaza Machado Mazatlan"},
+   {id:"maz-shrimp",t:"Shrimp ladies → cook it yourself",tags:["eats"],d:"Buy fresh shrimp from the vendors, then take it to a spot like Mariscos Dunia or El Ancla de Oro and have it cooked for a small fee. Peak Mazatlán.",when:"Lunch",cost:"$",src:"exm",map:"Mariscos Dunia Mazatlan"},
+   {id:"maz-malecon",t:"Malecón cruise & statues",tags:["chill","sights"],d:"Miles of seaside boardwalk with murals, statues and fishermen. Rent bikes, or walk the southern end closest to the port.",when:"Flexible",cost:"Free",src:"cc",map:"Malecon Mazatlan Olas Altas"}
+  ]},
+ pv:{name:"Puerto Vallarta",short:"Vallarta",date:"Wed Dec 23",time:"7:00 AM – 4:00 PM",pc:"#FFE36A",hi:"29°",lo:"17°",sea:"26°",
+  tz:"Jalisco",
+  blurb:"A fishing and pearl-diving village that got famous overnight when Hollywood filmed The Night of the Iguana at nearby Mismaloya in the early '60s. Richard Burton fell for the town, and Elizabeth Taylor came along. Look for Huichol beadwork everywhere: bright yarn-and-bead art from the Wixárika people of the nearby Sierra Madre.",
+  tip:["Docked in the city","The ship ties up right in town at Marina Vallarta, so you can walk straight off. Taxi or Uber to the Malecón and Romantic Zone. December is high season, so book Los Arcos early and go in the morning to beat the crowds."],
+  q:"Puerto Vallarta",
+  quests:[["pq1","Selfie with the seahorse statue"],["pq2","Spot a humpback"],["pq3","Buy a Huichol bead piece"],["pq4","Raicilla or tequila shot"],["pq5","Walk the Los Muertos pier"],["pq6","Climb to Mirador de la Cruz"]],
+  acts:[
+   {id:"pv-arcos",t:"Los Arcos marine park snorkel",tags:["snorkel","sights"],d:"A protected underwater national park with arches, tunnels and caves, reachable only by boat. It's a safe pick for newer snorkellers. Small private boats leave Marina Vallarta and can collect you at the cruise terminal.",when:"≈3 hrs",cost:"Port fee ≈US$2",src:"arcos",map:"Los Arcos Mismaloya"},
+   {id:"pv-daycruise",t:"Bay day cruise: Arcos + Las Ánimas",tags:["snorkel","party","beach"],d:"Booze-cruise energy: snorkel Los Arcos, then beach time at Las Ánimas or Quimixto with kayaking or horseback riding. Lunch and open bar included.",when:"Most of the day",cost:"Tour + small port fee",src:"pvday",map:"Las Animas Beach Puerto Vallarta"},
+   {id:"pv-whales",t:"Humpback whale watching",tags:["sights"],d:"Winter is whale season in Banderas Bay, and December is early in it. A boat trip is your best shot at seeing breaching humpbacks.",when:"3 hrs",cost:"$$",src:"pvk",map:"Whale watching Puerto Vallarta marina"},
+   {id:"pv-zip",t:"Jungle zipline / canopy",tags:["hike","party"],d:"The mountains run right into the sea here, so the ziplines are wild. You need a reasonable fitness level, and operators pick up at the cruise terminal.",when:"3–4 hrs",cost:"$$",src:"fod",map:"Canopy zipline Puerto Vallarta"},
+   {id:"pv-cruz",t:"Mirador de la Cruz hike",tags:["hike","sights"],d:"A steep stair climb from downtown to a cross-topped lookout over the whole bay. It's a great way to burn off tacos and margaritas.",when:"1 hr",cost:"Free",src:"fod",map:"Mirador Cerro de la Cruz Puerto Vallarta"},
+   {id:"pv-malecon",t:"Malecón sculpture hunt",tags:["sights","chill"],d:"The famous boardwalk, about eleven blocks of sea views and a whole outdoor art collection. Find the seahorse, the arches sculpture and the big Puerto Vallarta sign.",when:"1–2 hrs",cost:"Free",src:"cblog",map:"Malecon Puerto Vallarta"},
+   {id:"pv-zona",t:"Zona Romántica & Los Muertos Beach",tags:["party","beach"],d:"Cobblestone streets, bougainvillea and beach clubs on Playa de Los Muertos, just off the Malecón. This is PV's main party neighbourhood, with karaoke and drag shows later in the day.",when:"Afternoon",cost:"Drinks",src:"oys",map:"Playa de los Muertos Puerto Vallarta"},
+   {id:"pv-food",t:"Taco + tequila food tour",tags:["eats"],d:"Three-hour downtown walking tours that hit about eight local spots, with stories and tequila along the way.",when:"3 hrs",cost:"$$",src:"gz",map:"Vallarta Food Tours"}
+  ]},
+ ship:{name:"Discovery Princess",short:"The Ship",date:"Dec 20 · 24 · 25",time:"Sea days",pc:"#C9D6FF",
+  blurb:"The sixth and last of Princess's Royal-class ships, launched in 2021. On sea days, the ship is the destination, and two of yours land on Christmas Eve and Christmas Day.",
+  tip:["Holiday sailing","Princess decks out its ships for the holidays with a tree lighting (Royal-class ships get a full cast show), gingerbread house making, and holiday movies on the big poolside screen. Check the daily planner for times."],
+  quests:[["sq1","Movie under the stars in a blanket"],["sq2","Sing one song, any song"],["sq3","Build a gingerbread house"],["sq4","Win at the casino (or try)"],["sq5","Christmas toast at sea"],["sq6","Find all four of us on the app"]],
+  acts:[
+   {id:"sh-karaoke",t:"Karaoke lounge night",tags:["karaoke","party"],d:"Princess runs karaoke in its lounges, and some ships hold a Voice of the Ocean competition. Sign up early, pick a group anthem, and commit.",when:"Evenings",cost:"Included",src:"nf",map:""},
+   {id:"sh-movies",t:"Movies Under the Stars",tags:["chill"],d:"A 300 sq ft poolside screen showing films and live sports. At night they hand out blankets and popcorn, and holiday movies are expected this sailing.",when:"Day & night",cost:"Included",src:"disc",map:""},
+   {id:"sh-trivia",t:"Trivia & scavenger hunts",tags:["games"],d:"Team trivia and scavenger hunts run all through the sea days. Four of us is the perfect team size.",when:"Sea days",cost:"Included",src:"disc",map:""},
+   {id:"sh-casino",t:"Grand Casino",tags:["games","party"],d:"Tables and slots once you're in international waters. Set a fun budget, then hit the tables.",when:"Sea days & nights",cost:"$$",src:"disc",map:""},
+   {id:"sh-takefive",t:"Take Five jazz lounge",tags:["chill"],d:"A jazz club that only Discovery Princess has. It's a good pre-dinner cocktail spot.",when:"Evenings",cost:"Drinks",src:"disc",map:""},
+   {id:"sh-theater",t:"Princess Theater show",tags:["sights"],d:"Broadway-style productions, two shows a night, plus the smaller Princess Live! studio for game shows and comedy.",when:"Evenings",cost:"Included",src:"disc",map:""},
+   {id:"sh-xmas",t:"Tree lighting + gingerbread",tags:["chill","games"],d:"Holiday programming for this sailing: a tree lighting with a full cast performance on Royal-class ships and DIY gingerbread houses with candy and frosting.",when:"Dec 24–25",cost:"Included",src:"cf",map:""},
+   {id:"sh-saltydog",t:"Salty Dog burgers & street tacos",tags:["eats"],d:"A poolside grill for handmade gourmet burgers, plus Princess's first street tacos in chicken and sweet-potato versions.",when:"Lunch",cost:"Check onboard",src:"cost",map:""}
+  ]}
+};
+const DAYS=[
+ {k:"d18",dn:"18",wd:"Fri",t:"Fly to LA",dc:"#FFE6EF",items:["5:10 AM: YXY → LAX, lands 2:21 PM","Night at the Hampton Inn LAX (check-in 3 PM)"]},
+ {k:"d19",dn:"19",wd:"Sat",t:"Bon voyage, San Pedro",dc:"#FFD8A8",items:["Check out 11 AM, head to the Port of San Pedro","Board the Discovery Princess · sail-away 3:00 PM 🎉"]},
+ {k:"d20",dn:"20",wd:"Sun",t:"Sea day",dc:"#C9D6FF",port:"ship",items:["Explore the ship, pool, trivia, karaoke sign-up"]},
+ {k:"d21",dn:"21",wd:"Mon",t:"Cabo San Lucas",dc:"#FFB48A",port:"cabo",items:["In port 12:00 PM – 8:00 PM · tender port"]},
+ {k:"d22",dn:"22",wd:"Tue",t:"Mazatlán",dc:"#BFEDE6",port:"maz",items:["In port 8:00 AM – 5:00 PM"]},
+ {k:"d23",dn:"23",wd:"Wed",t:"Puerto Vallarta",dc:"#FFE36A",port:"pv",items:["In port 7:00 AM – 4:00 PM"]},
+ {k:"d24",dn:"24",wd:"Thu",t:"Sea day · Christmas Eve",dc:"#C9F2D0",port:"ship",items:["Tree lighting & holiday programming"]},
+ {k:"d25",dn:"25",wd:"Fri",t:"Sea day · Christmas Day 🎄",dc:"#FFC9C9",port:"ship",items:["Christmas at sea!"]},
+ {k:"d26",dn:"26",wd:"Sat",t:"Back to LA & home",dc:"#E3E0F5",items:["Arrive San Pedro 6:15 AM, disembark","3:20 PM: LAX → YXY, lands 1:28 AM"]}
+];
+const ALLACTS={};Object.entries(PORTS).forEach(([pk,p])=>p.acts.forEach((a,i)=>ALLACTS[a.id]={...a,port:pk,order:i}));
+
+/* ---------- state ---------- */
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let me=LS.get("me");if(!CREW.some(c=>c.n===me))me=null;
+let tab=(location.hash||"").slice(1);if(!["home","plan","cabo","maz","pv","ship"].includes(tab))tab=LS.get("tab")||"home";
+const filt={};
+let picks={},quests={},plans=[],status={};
+let db=null,live=false;
+const STANDALONE=!(window.claude&&window.claude.use);
+function loadLocal(){try{const d=JSON.parse(LS.get("local")||"{}");const toSets=o=>Object.fromEntries(Object.entries(o||{}).map(([k,v])=>[k,new Set(v)]));picks=toSets(d.picks);quests=toSets(d.quests);plans=d.plans||[];status=d.status||{}}catch(e){}}
+const API="/api/crew";let apiOk=false;
+const toSets=o=>Object.fromEntries(Object.entries(o||{}).map(([k,v])=>[k,new Set(v)]));
+function applyState(d){picks=toSets(d.picks);quests=toSets(d.quests);plans=d.plans||[];status=d.status||{}}
+async function pull(){try{const r=await fetch(API,{cache:"no-store"});if(!r.ok)throw 0;applyState(await r.json());apiOk=true;renderAll()}catch(e){if(apiOk){apiOk=false;renderAll()}}}
+async function push(op){if(!apiOk||db)return;try{const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...op,who:me})});if(!r.ok)throw 0;applyState(await r.json());renderAll()}catch(e){toast("Couldn't save. Check your connection.");pull()}}
+function saveLocal(){if(db||apiOk)return;const fromSets=o=>Object.fromEntries(Object.entries(o).map(([k,v])=>[k,[...v]]));LS.set("local",JSON.stringify({picks:fromSets(picks),quests:fromSets(quests),plans,status}))}
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dots=names=>names&&names.size?`<span class="dots">${[...names].map(n=>`<i style="--c:${COLOR[n]||'#999'}" title="${esc(n)}">${esc(n[0])}</i>`).join("")}</span>`:"";
+function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2200)}
+function ago(ts){const m=Math.round((Date.now()-ts)/60000);if(m<1)return"just now";if(m<60)return m+" min ago";const h=Math.round(m/60);return h<24?h+" hr ago":Math.round(h/24)+" d ago"}
+function needMe(){if(!me){toast("Tap your name at the top first 👆");document.querySelector(".me-strip")?.scrollIntoView({behavior:"smooth",block:"center"});return true}return false}
+
+/* ---------- tabs ---------- */
+const TABS=[["home","🌴 Home","#FFC21A"],["plan","📅 Schedule","#7FE3D9"],["cabo","🌅 Cabo","#FFB48A"],["maz","🎺 Mazatlán","#BFEDE6"],["pv","🦜 Vallarta","#FFE36A"],["ship","🚢 Ship","#C9D6FF"]];
+function renderTabs(){$("#tabs").innerHTML=TABS.map(([k,l,c])=>`<button class="tab" role="tab" style="--tc:${c}" aria-selected="${k===tab}" data-go="${k}">${l}</button>`).join("")}
+function go(k){tab=k;LS.set("tab",k);try{history.replaceState(null,"","#"+k)}catch(e){}document.querySelectorAll("section.panel").forEach(s=>s.hidden=s.dataset.tab!==k);renderTabs();window.scrollTo({top:0,behavior:"smooth"});document.querySelector(`.tab[data-go="${k}"]`)?.scrollIntoView({inline:"center",block:"nearest"})}
+
+/* ---------- shared bits ---------- */
+function meStrip(){return `<div class="me-strip"><span class="lbl">I'm</span>${CREW.map(c=>`<button class="face" style="--c:${c.c}" aria-pressed="${me===c.n}" data-me="${c.n}"><i>${c.n[0]}</i>${c.n}</button>`).join("")}</div>`}
+function ranked(list){return [...list].sort((a,b)=>((picks[b.id]?.size||0)-(picks[a.id]?.size||0))||(a.order??0)-(b.order??0))}
+function actCard(a,pk){const p=picks[a.id];const n=p?.size||0;const mine=me&&p?.has(me);const s=SRC[a.src];
+ return `<article class="act ${n?"voted":""}">${n?`<span class="rank">${n===4?"WHOLE CREW 🔥":n+" in"}</span>`:""}
+ <h3>${esc(a.t)}</h3><div class="tags">${a.tags.map(t=>`<span class="tag">${TAGS[t]}</span>`).join("")}</div>
+ <p>${esc(a.d)}</p>
+ <div class="meta"><span>⏱ ${esc(a.when)}</span><span>💵 ${esc(a.cost)}</span>${s?`<a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])} ↗</a>`:""}${a.map?`<a href="${M(a.map)}" target="_blank" rel="noopener">📍 Map</a>`:""}</div>
+ <div class="act-foot">${dots(p)||'<span class="note">No one yet</span>'}<button class="want ${mine?"on":""}" data-want="${a.id}">${mine?"I'm in ✓":"I wanna do this!"}</button></div></article>`}
+
+/* ---------- home ---------- */
+function mapSVG(){
+ return `<svg viewBox="0 0 340 300" role="img" aria-label="Cruise route from Los Angeles to Cabo San Lucas, Mazatlán, Puerto Vallarta and back">
+ <rect width="340" height="300" rx="16" fill="#9FE3EE"/>
+ <path d="M0 0 H340 V285 L297 279 L272 257 L283 250 L279 239 L260 212 L214 169 L181 135 L135 80 L114 78 L112 85 L156 145 L191 197 L209 208 L198 222 L159 189 L106 137 L80 70 L69 57 L50 41 L20 30 L0 26 Z" fill="#FFE7A8" stroke="#1E1240" stroke-width="2.5" stroke-linejoin="round"/>
+ <path d="M50 41 C 40 140, 150 230, 198 217 S 240 214, 260 212 S 275 250, 281 253 C 250 290, 60 250, 50 41" fill="none" stroke="#FF3D7F" stroke-width="3" stroke-dasharray="7 6" stroke-linecap="round"/>
+ <text x="230" y="60" font-family="Lilita One, sans-serif" font-size="18" fill="#1E1240" opacity=".55">MÉXICO</text>
+ <text x="40" y="200" font-family="Nunito, sans-serif" font-weight="900" font-size="11" fill="#1E1240" opacity=".6">PACIFIC</text>
+ <text x="150" y="120" font-family="Nunito, sans-serif" font-weight="900" font-size="9" fill="#1E1240" opacity=".55" transform="rotate(48 150 120)">SEA OF CORTEZ</text>
+ ${[["LA","Los Angeles",50,41,"home",8,-6],["cabo","Cabo",198,217,"cabo",-44,18],["maz","Mazatlán",260,212,"maz",-28,-12],["pv","Vallarta",281,253,"pv",-58,18]].map(([k,l,x,y,g,dx,dy])=>`<g class="stop" data-go="${g}" tabindex="0" role="link" aria-label="${l}"><circle cx="${x}" cy="${y}" r="9" fill="#FF3D7F" stroke="#1E1240" stroke-width="2.5"/><text x="${x+dx}" y="${y+dy}" font-family="Lilita One, sans-serif" font-size="15" fill="#1E1240">${l}</text></g>`).join("")}
+ </svg>`}
+function renderHome(){
+ const all=ranked(Object.values(ALLACTS)).filter(a=>picks[a.id]?.size).slice(0,8);
+ const hc={cabo:"#FFE1C9",maz:"#E3F6F2",pv:"#FFF6C2",ship:"#E8EEFF"};
+ $("#p-home").innerHTML=`
+ <div class="hero"><div class="sunburst"></div><div class="hero-in">
+  <span class="eyebrow">Discovery Princess · Mexican Riviera · Dec 19–26</span>
+  <h1>Feliz<br>Navi-Cruise</h1>
+  <p>Four friends, three ports, two sea days on Christmas. Vote on what to do, drop your own plans, and let the crew know where you're at.</p>
+  <div class="count" id="count"></div>
+ </div></div>
+ ${meStrip()}
+ <div class="box"><h2>Where's everyone?</h2>
+  <div class="status">${CREW.map(c=>{const s=status[c.n];return `<div class="st"><div class="nm"><i style="--c:${c.c}"></i>${c.n}</div><div class="where">${s?esc(s.where):"—"}</div><div class="ago">${s?ago(s.ts):"no check-in yet"}</div></div>`}).join("")}</div>
+  <div class="quick">${["🏊 Pool deck","🍔 Eating","🎤 Karaoke","🍹 At a bar","🎰 Casino","🎭 Show","🛏️ Cabin nap","🌴 Ashore"].map(w=>`<button class="qbtn" data-where="${w}">${w}</button>`).join("")}</div>
+  <div class="row"><input type="text" id="where-custom" maxlength="60" placeholder="Or type it: Deck 16, aft hot tub"><button class="btn" id="where-go">Post</button></div>
+ </div>
+ <div class="grid2">
+  <div class="box map"><h2>The loop</h2><p class="sub">Tap a stop to jump in.</p>${mapSVG()}</div>
+  <div class="box"><h2>Crew's hot list</h2><p class="sub">Most-wanted across every port. Vote on the port tabs.</p>
+   ${all.length?`<ol class="hot">${all.map((a,i)=>`<li style="--hc:${hc[a.port]}"><span class="n">${i+1}</span><span class="tt">${esc(a.t)}<small>${PORTS[a.port].short}</small></span>${dots(picks[a.id])}</li>`).join("")}</ol>`:`<p class="empty">Nothing picked yet. Open a port and smash "I wanna do this!" on anything that looks fun.</p>`}
+  </div>
+ </div>
+ <div class="box"><h2>Weather, one tap</h2><p class="sub">Typical December temps (°C). Tap for the live forecast, which gets useful about 10 days out.</p>
+  <div class="ports" style="margin-top:10px">${["cabo","maz","pv"].map(k=>{const p=PORTS[k];return `<a class="pchip" style="--pc:${p.pc}" href="https://www.google.com/search?q=${encodeURIComponent("weather "+p.name+" Mexico")}" target="_blank" rel="noopener"><b>${p.short}</b><span class="t">${p.date}</span><span class="w">☀️ ${p.hi} / ${p.lo} · 🌊 sea ${p.sea}</span></a>`}).join("")}
+  <a class="pchip" style="--pc:#E3E0F5" href="https://www.google.com/search?q=weather+San+Pedro+California" target="_blank" rel="noopener"><b>San Pedro</b><span class="t">Dec 19 · Dec 26</span><span class="w">⛅ ≈19° / 9° · pack a hoodie</span></a></div>
+ </div>
+ <p class="note">${STANDALONE&&!apiOk?"Can't reach the crew board right now, so changes save on this phone only until the connection is back.":"Votes, plans and check-ins are shared with the crew live. Ship wifi is slow and often paid, so open this page before you lose signal."}</p>`;
+ tick();
+}
+function tick(){const el=$("#count");if(!el)return;const t=new Date("2026-12-19T15:00:00-08:00")-Date.now();
+ if(t<=0){el.innerHTML=`<div><b>¡Ya!</b><span>We're sailing</span></div>`;return}
+ const d=Math.floor(t/864e5),h=Math.floor(t/36e5)%24,m=Math.floor(t/6e4)%60;
+ el.innerHTML=[[d,"days"],[h,"hrs"],[m,"min"]].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("")+`<div><b>⚓</b><span>to sail-away</span></div>`}
+setInterval(tick,30000);
+
+/* ---------- port art ---------- */
+const ART={
+ cabo:`<svg class="art" viewBox="0 0 280 200" aria-hidden="true"><circle cx="190" cy="120" r="46" fill="#FFD45A" stroke="#1E1240" stroke-width="3"/><path d="M60 200 C 70 120, 110 70, 150 72 C 190 74, 210 120, 214 140 L 236 140 C 240 100, 250 70, 280 66 L 280 200 Z M 166 200 C 168 170, 180 150, 196 152 C 206 154, 210 175, 210 200 Z" fill="#3A1A4F" stroke="#1E1240" stroke-width="3" fill-rule="evenodd"/><path d="M0 178 C 40 170, 80 186, 120 178 S 200 170, 280 182 L 280 200 L 0 200 Z" fill="#1546C7" stroke="#1E1240" stroke-width="3"/></svg>`,
+ maz:`<svg class="art" viewBox="0 0 280 200" aria-hidden="true"><path d="M70 200 C 110 110, 170 90, 280 96 L 280 200 Z" fill="#7FCF9B" stroke="#1E1240" stroke-width="3"/><rect x="196" y="40" width="22" height="58" fill="#fff" stroke="#1E1240" stroke-width="3"/><rect x="190" y="30" width="34" height="14" rx="3" fill="#F47CA6" stroke="#1E1240" stroke-width="3"/><path d="M196 34 L 120 10 L 120 52 Z" fill="#FFE08A" opacity=".7"/><path d="M0 182 C 50 172, 100 192, 150 182 S 230 174, 280 186 L 280 200 L 0 200 Z" fill="#2C3E9A" stroke="#1E1240" stroke-width="3"/></svg>`,
+ pv:`<svg class="art" viewBox="0 0 280 200" aria-hidden="true"><g stroke="#1E1240" stroke-width="3" fill="#fff"><path d="M60 200 V120 A40 40 0 0 1 140 120 V200 H124 V124 A24 24 0 0 0 76 124 V200 Z"/><path d="M150 200 V140 A34 34 0 0 1 218 140 V200 H204 V144 A20 20 0 0 0 164 144 V200 Z"/><path d="M226 200 V156 A26 26 0 0 1 278 156 V200 H266 V160 A14 14 0 0 0 238 160 V200 Z"/></g><circle cx="100" cy="70" r="16" fill="#E6007E" stroke="#1E1240" stroke-width="3"/><circle cx="184" cy="92" r="12" fill="#00A6D6" stroke="#1E1240" stroke-width="3"/><circle cx="252" cy="118" r="9" fill="#00A651" stroke="#1E1240" stroke-width="3"/></svg>`,
+ ship:`<svg class="art" viewBox="0 0 280 200" aria-hidden="true"><g fill="#FFD45A"><circle cx="40" cy="30" r="2"/><circle cx="90" cy="18" r="1.6"/><circle cx="150" cy="40" r="2.2"/><circle cx="230" cy="22" r="1.8"/><circle cx="260" cy="60" r="1.4"/></g><path d="M30 150 L 260 150 L 236 186 L 52 186 Z" fill="#fff" stroke="#000" stroke-width="3"/><rect x="70" y="118" width="160" height="32" fill="#fff" stroke="#000" stroke-width="3"/><rect x="100" y="94" width="104" height="24" fill="#fff" stroke="#000" stroke-width="3"/><g fill="#12245B">${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${80+i*18}" y="128" width="10" height="10" rx="2"/>`).join("")}</g><path d="M160 94 L 160 60 L 186 94 Z" fill="#2E8B57" stroke="#000" stroke-width="2.5"/><circle cx="160" cy="58" r="5" fill="#FFD45A" stroke="#000" stroke-width="2"/><path d="M0 186 C 60 176, 120 196, 180 186 S 250 178, 280 190 L 280 200 L 0 200 Z" fill="#1F3E8C"/></svg>`
+};
+const PAPEL=["#F47CA6","#FFE08A","#8FD6CF","#B9A3FF","#FF9F6B","#7FCF9B"];
+
+function renderPort(pk){
+ const p=PORTS[pk];const f=filt[pk]||"all";
+ const tagsHere=[...new Set(p.acts.flatMap(a=>a.tags))];
+ const list=ranked(p.acts).filter(a=>f==="all"||a.tags.includes(f));
+ const top=ranked(p.acts).filter(a=>picks[a.id]?.size).slice(0,3);
+ $("#p-"+pk).innerHTML=`
+ <div class="phero">${pk==="maz"?`<div class="papel">${PAPEL.concat(PAPEL).map(c=>`<span style="background:${c}"></span>`).join("")}</div>`:""}
+  <div class="in"><span class="eyebrow">${esc(p.date)}${p.tz?" · "+esc(p.tz):""}</span><h1>${esc(p.name)}</h1>
+  <div class="times"><span class="pill">${esc(p.time)}</span>${pk==="cabo"?'<span class="pill warn">Tender port</span>':""}${pk==="ship"?'<span class="pill warn">🎄 Christmas at sea</span>':""}</div>
+  <p class="blurb">${esc(p.blurb)}</p></div>${ART[pk]}</div>
+ ${meStrip()}
+ <div class="tip"><span>💡</span><div><b>${esc(p.tip[0])}</b><br>${esc(p.tip[1])}</div></div>
+ <div class="box"><h2>Side quests</h2><p class="sub">Tap when you've done it. Bragging rights only.</p>
+  <div class="quests" style="margin-top:10px">${p.quests.map(([id,l])=>{const s=quests[id];const done=me&&s?.has(me);return `<button class="quest ${done?"done":""}" data-quest="${id}"><span class="ck">${done?"✓":""}</span>${esc(l)}${dots(s)}</button>`}).join("")}</div></div>
+ ${top.length?`<div class="box"><h2>We're doing…</h2><ol class="hot">${top.map((a,i)=>`<li style="--hc:${p.pc}"><span class="n">${i+1}</span><span class="tt">${esc(a.t)}</span>${dots(picks[a.id])}</li>`).join("")}</ol></div>`:""}
+ <div style="display:flex;flex-direction:column;gap:10px">
+  <h2 style="font-size:28px">${pk==="ship"?"Onboard fun":"Things to do"}</h2>
+  <div class="filters">${["all",...tagsHere].map(t=>`<button class="fchip" aria-pressed="${f===t}" data-filt="${pk}:${t}">${t==="all"?"✨ Everything":TAGS[t]}</button>`).join("")}</div>
+ </div>
+ <div class="acts">${list.map(a=>actCard(a,pk)).join("")}</div>
+ ${p.q?`<div class="box"><h2>Dig deeper</h2><p class="sub">Fresh takes from other cruisers and top-rated tours.</p><div class="extlinks" style="margin-top:10px">
+  <a class="ext" target="_blank" rel="noopener" href="https://www.reddit.com/r/Cruise/search/?q=${encodeURIComponent(p.q)}">Reddit r/Cruise ↗</a>
+  <a class="ext" target="_blank" rel="noopener" href="https://www.reddit.com/search/?q=${encodeURIComponent(p.q+" cruise port day")}">Reddit port-day threads ↗</a>
+  <a class="ext" target="_blank" rel="noopener" href="https://www.tripadvisor.com/Search?q=${encodeURIComponent(p.q+" things to do")}">TripAdvisor top things ↗</a>
+  <a class="ext" target="_blank" rel="noopener" href="${M(p.q+" Mexico")}">📍 Open map ↗</a>
+  <a class="ext" target="_blank" rel="noopener" href="https://www.google.com/search?q=${encodeURIComponent("weather "+p.name+" Mexico")}">☀️ Live weather ↗</a>
+ </div></div>`:""}`;
+}
+
+/* ---------- schedule ---------- */
+function renderPlan(){
+ $("#p-plan").innerHTML=`
+ <div class="hero" style="background:linear-gradient(160deg,#7FE3D9,#C9D6FF)"><div class="hero-in"><span class="eyebrow">Dec 18 – 26</span><h1 style="font-size:clamp(36px,9vw,60px)">The Week</h1><p>Port times come from the booking. Crew picks and your own plans drop in under each day automatically.</p></div></div>
+ ${meStrip()}
+ <div class="box"><h2>Add a plan</h2><p class="sub">Dinner reservation, spa slot, "meet at the hot tub at 10". Anything goes.</p>
+  <div class="row"><select id="pl-day" aria-label="Day">${DAYS.map(d=>`<option value="${d.k}">${d.wd} Dec ${d.dn}</option>`).join("")}</select><input type="text" id="pl-time" maxlength="12" placeholder="Time, e.g. 7:30 PM" style="flex:0 1 140px"></div>
+  <div class="row"><input type="text" id="pl-what" maxlength="90" placeholder="What's happening?"><button class="btn" id="pl-add" style="background:var(--sun)">Add it</button></div>
+ </div>
+ <div class="days">${DAYS.map(d=>{
+  const mine=plans.filter(x=>x.day===d.k);
+  const ps=d.port?ranked(PORTS[d.port].acts).filter(a=>picks[a.id]?.size):[];
+  return `<div class="day" style="--dc:${d.dc}"><div class="date"><span>${d.wd}</span><b>${d.dn}</b><span>Dec</span></div>
+  <div class="body"><h3>${esc(d.t)}</h3><ul>${d.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>
+  ${d.port&&d.port!=="ship"?`<p class="note">All-aboard is usually 30 min before departure. Confirm in the daily planner.</p>`:""}
+  ${ps.length?`<span class="lab">Crew picks</span><div class="mini">${ps.map(a=>`<span>${esc(a.t)} · ${picks[a.id].size}</span>`).join("")}</div>`:""}
+  ${mine.length?`<span class="lab">Plans</span>${mine.sort((a,b)=>String(a.time).localeCompare(String(b.time))).map(x=>`<div class="plan"><span class="tm">${esc(x.time||"any time")}</span><span style="flex:1;min-width:0">${esc(x.what)} <span class="dots" style="display:inline-flex;vertical-align:middle">${dots(new Set([x.who]))}</span></span>${x.who===me?`<button class="x" data-del="${x.id}" aria-label="Delete plan">✕</button>`:""}</div>`).join("")}`:""}
+  ${d.port?`<button class="qbtn" style="align-self:flex-start" data-go="${d.port}">See ${PORTS[d.port].short} ideas →</button>`:""}
+  </div></div>`}).join("")}</div>`;
+}
+
+function renderAll(){
+ const ids=["pl-day","pl-time","pl-what","where-custom"];const keep={};ids.forEach(i=>{const el=document.getElementById(i);if(el)keep[i]=el.value});
+ const act=document.activeElement?.id;
+ renderHome();renderPlan();["cabo","maz","pv","ship"].forEach(renderPort);saveLocal();
+ ids.forEach(i=>{const el=document.getElementById(i);if(el&&keep[i]!=null)el.value=keep[i]});
+ if(act&&ids.includes(act))document.getElementById(act)?.focus();
+}
+
+/* ---------- actions ---------- */
+async function toggleWant(id){
+ if(needMe())return;const s=picks[id]||(picks[id]=new Set());const on=s.has(me);
+ if(on)s.delete(me);else s.add(me);renderAll();
+ toast(on?"Removed":"You're in! Moved up the list 🚀");
+ if(db){const ref=db.doc("picks/"+id+"__"+me);try{on?await ref.delete():await ref.set({act:id,who:me,ts:Date.now()})}catch(e){toast("Couldn't save. Check your connection.")}}else push({op:"pick",id,on:!on});
+}
+async function toggleQuest(id){
+ if(needMe())return;const s=quests[id]||(quests[id]=new Set());const on=s.has(me);
+ if(on)s.delete(me);else s.add(me);renderAll();if(!on)toast("Side quest complete ⭐");
+ if(db){const ref=db.doc("quests/"+id+"__"+me);try{on?await ref.delete():await ref.set({q:id,who:me,ts:Date.now()})}catch(e){toast("Couldn't save. Check your connection.")}}else push({op:"quest",id,on:!on});
+}
+async function setWhere(w){
+ if(needMe())return;w=w.trim();if(!w)return;status[me]={where:w,ts:Date.now()};renderAll();toast("Crew can see you're at: "+w);
+ if(db){try{await db.doc("status/"+me).set({who:me,where:w,ts:Date.now()})}catch(e){toast("Couldn't save. Check your connection.")}}else push({op:"status",where:w});
+}
+async function addPlan(){
+ if(needMe())return;const what=$("#pl-what").value.trim();if(!what){toast("Type what's happening first");return}
+ const rec={day:$("#pl-day").value,time:$("#pl-time").value.trim(),what,who:me,ts:Date.now()};
+ if(db){try{const ref=await db.collection("plans").add(rec);rec.id=ref.id}catch(e){toast("Couldn't save. Check your connection.");return}}
+ else if(apiOk){await push({op:"plan",day:rec.day,time:rec.time,what:rec.what})}else{rec.id="l"+rec.ts;plans.push(rec)}
+ $("#pl-what").value="";$("#pl-time").value="";renderAll();toast("Added to the schedule 📅");
+}
+async function delPlan(id){plans=plans.filter(p=>p.id!==id);renderAll();if(db){try{await db.doc("plans/"+id).delete()}catch(e){}}else push({op:"unplan",id});}
+
+document.addEventListener("click",e=>{
+ const t=e.target.closest("[data-go],[data-me],[data-want],[data-quest],[data-filt],[data-where],[data-del],#where-go,#pl-add");if(!t)return;
+ if(t.dataset.go)return go(t.dataset.go);
+ if(t.dataset.me){me=t.dataset.me;LS.set("me",me);renderAll();return toast("Hola, "+me+" 👋")}
+ if(t.dataset.want)return toggleWant(t.dataset.want);
+ if(t.dataset.quest)return toggleQuest(t.dataset.quest);
+ if(t.dataset.filt){const[pk,f]=t.dataset.filt.split(":");filt[pk]=f;return renderPort(pk)}
+ if(t.dataset.where)return setWhere(t.dataset.where);
+ if(t.dataset.del)return delPlan(t.dataset.del);
+ if(t.id==="where-go"){const v=$("#where-custom").value;$("#where-custom").value="";return setWhere(v)}
+ if(t.id==="pl-add")return addPlan();
+});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"){const g=e.target.closest?.(".stop");if(g)go(g.dataset.go);if(e.target.id==="where-custom")$("#where-go").click();if(e.target.id==="pl-what")addPlan()}});
+
+/* ---------- boot ---------- */
+if(STANDALONE){loadLocal();pull();setInterval(()=>{if(!document.hidden)pull()},10000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)pull()})}
+renderTabs();renderAll();go(tab);
+(async()=>{
+ try{db=window.claude?.use?await window.claude.use("db"):null}catch(e){db=null}
+ if(!db)return;live=true;
+ const err=()=>{};
+ db.collection("picks").onSnapshot(s=>{const n={};s.docs.forEach(d=>{const x=d.data();if(x&&x.act&&x.who)(n[x.act]||(n[x.act]=new Set())).add(x.who)});picks=n;renderAll()},err);
+ db.collection("quests").onSnapshot(s=>{const n={};s.docs.forEach(d=>{const x=d.data();if(x&&x.q&&x.who)(n[x.q]||(n[x.q]=new Set())).add(x.who)});quests=n;renderAll()},err);
+ db.collection("plans").onSnapshot(s=>{plans=s.docs.map(d=>({...d.data(),id:d.id})).filter(x=>x.what);renderAll()},err);
+ db.collection("status").onSnapshot(s=>{const n={};s.docs.forEach(d=>{const x=d.data();if(x&&x.who)n[x.who]=x});status=n;renderAll()},err);
+})();
+</script>
+
+</body>
+</html>
