@@ -90,18 +90,27 @@ button.np{cursor:pointer}
 .sub{color:var(--soft);font-size:13px;font-weight:700;margin:0}
 
 /* weather scroller */
-.wx{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 2px 8px;margin-top:4px}
-.pchip{flex:0 0 160px;scroll-snap-align:start;display:flex;flex-direction:column;gap:2px;text-decoration:none;border:2px solid var(--ink);border-radius:16px;padding:10px 12px;background:var(--pc);color:var(--ink)}
-.pchip b{font-family:var(--display);font-size:18px}
-.pchip .t{font-family:var(--mono);font-size:12px}
-.pchip .w{font-weight:800;font-size:13px}
-.windy{flex:0 0 min(86vw,560px);scroll-snap-align:start;border:2px solid var(--ink);border-radius:16px;overflow:hidden;background:#0B2545;color:#fff;display:flex;flex-direction:column}
-.windy iframe{width:100%;height:300px;border:0;display:block;background:#0B2545}
+.wx{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 2px 8px;margin-top:4px;scrollbar-width:none}
+.wx::-webkit-scrollbar{display:none}
+.wxpage{flex:0 0 100%;scroll-snap-align:start;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0}
+.pchip{display:flex;flex-direction:column;gap:1px;text-decoration:none;border:2px solid var(--ink);border-radius:16px;padding:9px 11px;background:var(--pc);color:var(--ink);min-width:0}
+.pchip b{font-family:var(--display);font-size:18px;line-height:1.1}
+.pchip .t{font-family:var(--mono);font-size:11.5px}
+.pchip .big{font-family:var(--display);font-size:22px;line-height:1.15;font-variant-numeric:tabular-nums}
+.pchip .w{font-weight:800;font-size:12.5px;line-height:1.35}
+.pchip .lk{font-size:11.5px;font-weight:900;margin-top:3px;text-decoration:underline}
+.windy{flex:0 0 100%;scroll-snap-align:start;border:2px solid var(--ink);border-radius:16px;overflow:hidden;background:#0B2545;color:#fff;display:flex;flex-direction:column}
+.windy iframe{width:100%;height:320px;border:0;display:block;background:#0B2545}
 .windy .cap{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 12px;font-weight:800;font-size:13px}
 .windy .cap a{color:#FFD45A}
-.windy.link{justify-content:center;align-items:flex-start;gap:6px;padding:14px;text-decoration:none;flex-basis:220px}
+.windy.link{justify-content:center;align-items:flex-start;gap:6px;padding:14px;text-decoration:none}
 .windy.link b{font-family:var(--display);font-size:20px}
-.swipe{font-size:12px;color:var(--soft);font-weight:800}
+.wxbar{position:relative;margin-top:8px;height:54px;border:2px solid var(--ink);border-radius:999px;background:linear-gradient(90deg,#FFE7A0 0%,#FFB86B 45%,#7FC4F5 55%,#3B6FD1 100%);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.wxbar .lab{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--display);font-size:15px;color:var(--ink);pointer-events:none}
+.wxbar .lab.l{left:62px}.wxbar .lab.r{right:62px;color:#fff;text-shadow:1px 1px 0 var(--ink)}
+.wxthumb{position:absolute;top:50%;left:var(--x,0px);width:60px;height:60px;margin-top:-30px;display:grid;place-items:center;font-size:44px;line-height:1;filter:drop-shadow(2px 3px 0 rgba(30,18,64,.45));transition:transform .15s;pointer-events:none}
+.wxbar:active .wxthumb{transform:scale(1.12)}
+.wxbar:focus-visible{outline:3px solid var(--violet);outline-offset:3px}
 
 .map svg{width:100%;height:auto;display:block}
 .map .stop{cursor:pointer}
@@ -760,6 +769,23 @@ function mapSVG(){
  <text x="150" y="120" font-family="Nunito, sans-serif" font-weight="900" font-size="9" fill="#1E1240" opacity=".55" transform="rotate(48 150 120)">SEA OF CORTEZ</text>
  ${[["Los Angeles",50,41,"plan",8,-6],["Cabo",198,217,"cabo",-44,18],["Mazatlán",260,212,"maz",-28,-12],["Vallarta",281,253,"pv",-58,18]].map(([l,x,y,g,dx,dy])=>`<g class="stop" data-go="${g}" tabindex="0" role="link" aria-label="${l}"><circle cx="${x}" cy="${y}" r="9" fill="#FF3D7F" stroke="#1E1240" stroke-width="2.5"/><text x="${x+dx}" y="${y+dy}" font-family="Lilita One, sans-serif" font-size="15" fill="#1E1240">${l}</text></g>`).join("")}
  </svg>`}
+const WX={
+ cabo:{name:"Cabo",date:"Mon Dec 21",pc:"#FFB48A",ico:"☀️",hi:27,lo:17,sea:"24°",set:"≈5:39 PM",note:"☂️ Dry season, rain unlikely",q:"Cabo San Lucas Mexico"},
+ maz:{name:"Mazatlán",date:"Tue Dec 22",pc:"#BFEDE6",ico:"🌤️",hi:26,lo:17,sea:"24°",set:"≈5:25 PM",note:"☂️ Dry season, rain unlikely",q:"Mazatlan Mexico"},
+ pv:{name:"Vallarta",date:"Wed Dec 23",pc:"#FFE36A",ico:"☀️",hi:29,lo:17,sea:"26°",set:"≈6:26 PM",note:"🕐 Clocks 1 hr ahead of Cabo",q:"Puerto Vallarta Mexico"},
+ sp:{name:"San Pedro",date:"Dec 19 · 26",pc:"#E3E0F5",ico:"⛅",hi:19,lo:9,sea:"16°",set:"≈4:47 PM",note:"🧥 Pack a hoodie",q:"San Pedro California"}
+};
+let wxPos=0;
+function wxSync(){const w=document.getElementById("wx"),bar=document.getElementById("wxbar"),th=document.getElementById("wxthumb");if(!w||!bar||!th)return;const max=w.scrollWidth-w.clientWidth;const r=max>0?w.scrollLeft/max:0;wxPos=r;th.style.setProperty("--x",(r*(bar.clientWidth-60))+"px");th.textContent=r<.5?"☀️":"🌬️";bar.setAttribute("aria-valuenow",r.toFixed(2))}
+function wxTo(r,smooth){const w=document.getElementById("wx");if(!w)return;const max=w.scrollWidth-w.clientWidth;w.scrollTo({left:Math.max(0,Math.min(1,r))*max,behavior:smooth?"smooth":"auto"})}
+let wxDrag=null;
+document.addEventListener("pointerdown",e=>{const bar=e.target.closest?.("#wxbar");if(!bar)return;e.preventDefault();bar.setPointerCapture?.(e.pointerId);const w=document.getElementById("wx");w.style.scrollSnapType="none";wxDrag={bar};const f=ev=>{const rc=bar.getBoundingClientRect();const r=Math.max(0,Math.min(1,(ev.clientX-rc.left-30)/(rc.width-60)));wxDrag.r=r;wxTo(r)};f(e);wxDrag.f=f});
+document.addEventListener("pointermove",e=>{if(wxDrag)wxDrag.f(e)});
+const wxEnd=()=>{if(!wxDrag)return;const w=document.getElementById("wx");w.style.scrollSnapType="";const r=wxDrag.r??wxPos;wxTo(r<.5?0:1,true);wxDrag=null};
+document.addEventListener("pointerup",wxEnd);document.addEventListener("pointercancel",wxEnd);
+document.addEventListener("scroll",e=>{if(e.target&&e.target.id==="wx")wxSync()},true);
+document.addEventListener("keydown",e=>{if(e.target?.id==="wxbar"&&(e.key==="ArrowRight"||e.key==="ArrowLeft")){e.preventDefault();wxTo(e.key==="ArrowRight"?1:0,true)}});
+window.addEventListener("resize",()=>wxSync());
 let windyFrame=null;
 function windyCard(){
  const url="https://www.windy.com/?22.5,-108.5,5";
@@ -786,11 +812,12 @@ function renderHome(){
   <div class="quick">${["🏊 Pool deck","🍔 Eating","🎤 Karaoke","🍹 At a bar","🎰 Casino","🎭 Show","🛏️ Cabin nap","🌴 Ashore"].map(w=>`<button class="qbtn" data-where="${w}">${w}</button>`).join("")}</div>
   <div class="row"><input type="text" id="where-custom" maxlength="60" placeholder="Or type it: aft hot tub, lost again"><button class="btn" id="where-go">Post</button></div>
  </div>
- <div class="box"><h2>Weather, one tap</h2><p class="sub">Typical December temps (°C). Tap a port for its live forecast. Swipe → for the live wind map.</p>
-  <div class="wx">${["cabo","maz","pv"].map(k=>{const p=PORTS[k];return `<a class="pchip" style="--pc:${p.pc}" href="https://www.google.com/search?q=${encodeURIComponent("weather "+p.name+" Mexico")}" target="_blank" rel="noopener"><b>${p.short}</b><span class="t">${p.date}</span><span class="w">☀️ ${p.hi} / ${p.lo}</span><span class="w">🌊 sea ${p.sea}</span></a>`}).join("")}
-  <a class="pchip" style="--pc:#E3E0F5" href="https://www.google.com/search?q=weather+San+Pedro+California" target="_blank" rel="noopener"><b>San Pedro</b><span class="t">Dec 19 · Dec 26</span><span class="w">⛅ ≈19° / 9°</span><span class="w">Pack a hoodie</span></a>
-  ${windyCard()}</div>
-  <span class="swipe">Swipe for more →</span>
+ <div class="box"><h2>Weather, one tap</h2><p class="sub">Typical December weather (°C) for each stop. Slide the sun → for the live wind map.</p>
+  <div class="wx" id="wx">
+   <div class="wxpage">${["cabo","maz","pv","sp"].map(k=>{const p=WX[k];return `<a class="pchip" style="--pc:${p.pc}" href="https://www.google.com/search?q=${encodeURIComponent("weather "+p.q)}" target="_blank" rel="noopener"><b>${p.name}</b><span class="t">${p.date}</span><span class="big">${p.ico} ${p.hi}/${p.lo}°</span><span class="w">🌊 Sea ${p.sea}</span><span class="w">🌅 Sunset ${p.set}</span><span class="w">${p.note}</span><span class="lk">Live forecast ↗</span></a>`}).join("")}</div>
+   ${windyCard()}
+  </div>
+  <div class="wxbar" id="wxbar" role="slider" tabindex="0" aria-label="Slide between port weather and the live wind map" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><span class="lab l">Ports</span><span class="lab r">Wind map</span><span class="wxthumb" id="wxthumb">☀️</span></div>
  </div>
  <div class="grid2">
   <div class="box map"><h2>The loop</h2><p class="sub">Tap a stop to jump in.</p>${mapSVG()}</div>
@@ -944,12 +971,12 @@ function explorerHTML(){
  </div>
  <div class="box explorer">
   <h2>Deck ${shipDeck} · ${DECKNAME[shipDeck]}${shipDeck===15?" ★":""}</h2>
-  <p class="notscale">Simplified guide, not to scale.</p>
+  ${DECKTIP[shipDeck]?`<div class="tip" style="--p3:#E8F7FF;--p1:#12245B"><span>🧭</span><div><b>Getting around</b><br>${esc(DECKTIP[shipDeck])}</div></div>`:""}
+  <p class="notscale">Not to scale. If you end up in the engine room, you've gone too far.</p>
   <div class="filters">${["all",...Object.keys(CATS)].map(c=>`<button class="fchip" aria-pressed="${vcat===c}" data-vcat="${c}">${c==="all"?"✨ All":CATS[c]}</button>`).join("")}</div>
   ${filtered?`<div><span class="lab">${CATS[vcat]} across the ship</span><div class="vlist" style="margin-top:6px">${filtered.map(v=>`<button class="vbtn" data-venue="${v.id}"><span style="font-size:20px">${v.e}</span><span class="t">${esc(v.n)}<small>${v.d?`Deck ${v.d} ${DECKNAME[v.d]}`:"Location not confirmed"}</small></span></button>`).join("")||'<p class="empty">Nothing here yet.</p>'}</div></div>`:""}
   <div class="deckmap">${deckSVG(shipDeck)}</div>
   <div class="mapkey"><span><i style="background:#3B4A7A"></i>Lifts</span><span><i class="st"></i>Stairs</span><span>🚻 Restrooms</span><span><i style="background:#E9ECF3"></i>Cabins</span><span><i style="background:#FFF0C2"></i>Hallways</span><span><i style="background:#FF3D7F"></i>Our cabin</span><span><i style="background:${RCOL.food}"></i>Food</span><span><i style="background:${RCOL.drinks}"></i>Drinks</span><span><i style="background:${RCOL.shows}"></i>Shows</span><span><i style="background:${RCOL.pools}"></i>Pools</span><span><i style="background:${RCOL.quiet}"></i>Quiet</span></div>
-  ${DECKTIP[shipDeck]?`<div class="tip" style="--p3:#E8F7FF;--p1:#12245B"><span>🧭</span><div><b>Getting around</b><br>${esc(DECKTIP[shipDeck])}</div></div>`:""}
   <p class="note">${esc(src)}</p>
   ${placed.length?`<div class="vlist">${placed.map(v=>`<button class="vbtn" data-venue="${v.id}"><span style="font-size:20px">${v.e}</span><span class="t">${esc(v.n)}<small>${posText(v)}</small></span></button>`).join("")}</div>`:`<p class="empty">${shipDeck>=8&&shipDeck<=15?"Cabins and a launderette. Nothing to party at here.":"No public venues on this deck."}</p>`}
   ${unspot.length?`<div><span class="lab">On this deck, exact spot not confirmed</span><div class="vlist" style="margin-top:6px">${unspot.map(v=>`<button class="vbtn" data-venue="${v.id}"><span style="font-size:20px">${v.e}</span><span class="t">${esc(v.n)}</span></button>`).join("")}</div></div>`:""}
@@ -1177,7 +1204,8 @@ function renderAll(){
  const act=document.activeElement?.id;const nerdOpen=document.getElementById("nerd")?.open;
  const openSecrets=[...document.querySelectorAll("section.panel details.secret")].map(d=>d.open);const y=scrollY;
  if(windyFrame)windyFrame.remove();
- renderHome();if(windyFrame){const sl=document.getElementById("windy-slot");if(sl)sl.replaceWith(windyFrame)}
+ const wxKeep=wxPos;
+ renderHome();requestAnimationFrame(()=>{wxTo(wxKeep);wxSync()});if(windyFrame){const sl=document.getElementById("windy-slot");if(sl)sl.replaceWith(windyFrame)}
  renderPlan();["cabo","maz","pv"].forEach(renderPort);renderShip();renderMap();renderLegends();
  ids.forEach(i=>{const el=document.getElementById(i);if(el&&keep[i]!=null)el.value=keep[i]});
  if(nerdOpen)document.getElementById("nerd").open=true;
